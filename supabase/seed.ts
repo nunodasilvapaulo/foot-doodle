@@ -38,10 +38,8 @@ async function seed() {
     const key = `${p.id}_${p.name}`
     if (!uniquePlayers.has(key)) uniquePlayers.set(key, p)
   }
-  const playerRows = [...uniquePlayers.values()].map((p, idx) => ({
-    id: p.id === 521 || p.id === 1485 || p.id === 2931  // handle shared placeholder IDs
-      ? 90000 + idx
-      : p.id,
+  const playerRows = [...uniquePlayers.values()].map((p) => ({
+    id: p.id,
     name: p.name,
     photo: p.photo,
     nationality: p.nationality,
@@ -56,11 +54,9 @@ async function seed() {
 
   // ── 3. Upsert player_clubs ───────────────────────────────────────────────
   const pcRows: { player_id: number; club_id: number; sort_order: number }[] = []
-  for (let i = 0; i < PLAYERS.length; i++) {
-    const p = PLAYERS[i]
-    const resolvedId = p.id === 521 || p.id === 1485 || p.id === 2931 ? 90000 + i : p.id
+  for (const p of PLAYERS) {
     for (let j = 0; j < p.clubIds.length; j++) {
-      pcRows.push({ player_id: resolvedId, club_id: p.clubIds[j], sort_order: j })
+      pcRows.push({ player_id: p.id, club_id: p.clubIds[j], sort_order: j })
     }
   }
 
