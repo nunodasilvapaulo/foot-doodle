@@ -12,11 +12,12 @@ import { config } from 'dotenv'
 
 config({ path: '.env' })
 
-const url  = process.env.VITE_SUPABASE_URL  ?? process.env.SUPABASE_URL  ?? ''
-const key  = process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? ''
+const url  = process.env.VITE_SUPABASE_URL ?? ''
+// Seed uses the service role key to bypass RLS — never used in the frontend
+const key  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 
 if (!url || !key) {
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
+  console.error('Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env')
   process.exit(1)
 }
 
