@@ -26,9 +26,23 @@ const supabase = createClient(url, key)
 async function seed() {
   console.log(`\n⚽ Football Trivia — Seeding Supabase\n`)
 
+  // ── 0. Clear old data (re-seed cleanly) ─────────────────────────────────
+  console.log('Clearing old data…')
+  await supabase.from('player_clubs').delete().gte('player_id', 0)
+  await supabase.from('players').delete().gte('id', 0)
+  await supabase.from('clubs').delete().gte('id', 0)
+  console.log('✓ Cleared')
+
   // ── 1. Upsert clubs ──────────────────────────────────────────────────────
   console.log(`Inserting ${CLUBS.length} clubs…`)
-  const { error: clubErr } = await supabase.from('clubs').upsert(CLUBS, { onConflict: 'id' })
+  // Try with league column first; fall back without it if the column doesn't exist yet
+  const clubRows = CLUBS.map(({ id, name, logo, country, league }) => ({ id, name, logo, country, league }))
+  let { error: clubErr } = await supabase.from('clubs').upsert(clubRows, { onConflict: 'id' })
+  if (clubErr?.message?.includes("'league'")) {
+    console.log('  (league column not yet in DB — run schema.sql in Supabase SQL Editor first, then re-seed)')
+    const fallback = CLUBS.map(({ id, name, logo, country }) => ({ id, name, logo, country }));
+    ({ error: clubErr } = await supabase.from('clubs').upsert(fallback, { onConflict: 'id' }))
+  }
   if (clubErr) { console.error('Clubs error:', clubErr.message); process.exit(1) }
   console.log('✓ Clubs done')
 

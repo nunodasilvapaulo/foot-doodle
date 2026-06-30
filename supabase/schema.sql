@@ -8,7 +8,8 @@ create table if not exists clubs (
   id        integer primary key,
   name      text    not null,
   logo      text    not null default '',
-  country   text    not null default ''
+  country   text    not null default '',
+  league    text    not null default ''
 );
 
 -- Players
